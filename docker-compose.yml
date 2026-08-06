@@ -1,0 +1,85 @@
+version: '3.9'
+
+services:
+  # ─── MongoDB ─────────────────────────────────────
+  mongo:
+    image: mongo:7
+    container_name: curricraft-mongo
+    restart: unless-stopped
+    ports:
+      - '27017:27017'
+    volumes:
+      - mongo-data:/data/db
+    networks:
+      - curricraft-net
+    healthcheck:
+      test: echo 'db.runCommand("ping").ok' | mongosh --quiet
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ─── Redis ───────────────────────────────────────
+  redis:
+    image: redis:7-alpine
+    container_name: curricraft-redis
+    restart: unless-stopped
+    ports:
+      - '6379:6379'
+    volumes:
+      - redis-data:/data
+    networks:
+      - curricraft-net
+    healthcheck:
+      test: ['CMD', 'redis-cli', 'ping']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ─── Backend API ─────────────────────────────────
+  server:
+    build:
+      context: ./server
+      dockerfile: Dockerfile
+      target: development
+    container_name: curricraft-server
+    restart: unless-stopped
+    ports:
+      - '5000:5000'
+    env_file:
+      - .env
+    volumes:
+      - ./server/src:/app/src
+      - /app/node_modules
+    depends_on:
+      mongo:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - curricraft-net
+
+  # ─── Frontend ────────────────────────────────────
+  client:
+    build:
+      context: ./client
+      dockerfile: Dockerfile
+      target: development
+    container_name: curricraft-client
+    restart: unless-stopped
+    ports:
+      - '5173:5173'
+    volumes:
+      - ./client/src:/app/src
+      - /app/node_modules
+    depends_on:
+      - server
+    networks:
+      - curricraft-net
+
+volumes:
+  mongo-data:
+  redis-data:
+
+networks:
+  curricraft-net:
+    driver: bridge

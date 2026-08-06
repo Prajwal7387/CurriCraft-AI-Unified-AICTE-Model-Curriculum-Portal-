@@ -1,0 +1,28 @@
+{
+  "name": "curricraft-ai",
+  "version": "1.0.0",
+  "description": "CurriCraft AI – Unified AICTE Model Curriculum Portal",
+  "private": true,
+  "workspaces": [
+    "server",
+    "client"
+  ],
+  "scripts": {
+    "dev": "concurrently \"npm run dev:server\" \"npm run dev:client\"",
+    "dev:server": "cd server && npm run dev",
+    "dev:client": "cd client && npm run dev",
+    "build": "concurrently \"npm run build:server\" \"npm run build:client\"",
+    "build:server": "cd server && npm run build",
+    "build:client": "cd client && npm run build",
+    "docker:up": "docker compose up -d",
+    "docker:down": "docker compose down",
+    "docker:dev": "docker compose -f docker-compose.yml up --build",
+    "docker:logs": "docker compose logs -f",
+    "seed": "cd server && npm run seed",
+    "lint": "concurrently \"cd server && npm run lint\" \"cd client && npm run lint\"",
+    "test": "concurrently \"cd server && npm test\" \"cd client && npm test\""
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.2"
+  }
+}
