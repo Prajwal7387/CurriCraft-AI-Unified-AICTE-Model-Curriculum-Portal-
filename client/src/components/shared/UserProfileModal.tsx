@@ -2,15 +2,10 @@ import React from 'react';
 import { Button } from '@/components/ui/button';
 import {
   ShieldCheck,
-  Award,
   Building,
   KeyRound,
   CheckCircle2,
-  Lock,
-  QrCode,
   Sparkles,
-  FileCheck,
-  Calendar,
   LogOut,
 } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
@@ -35,7 +30,8 @@ export const UserProfileModal: React.FC<UserProfileModalProps> = ({ isOpen, onCl
     PUBLIC_VIEWER: { level: 'Level 1: Public Open Access', color: 'from-emerald-600 to-teal-600', badge: '👁️ Public Repository Access' },
   };
 
-  const clearance = roleClearanceMap[roleName] || roleClearanceMap.PUBLIC_VIEWER;
+  const defaultClearance = { level: 'Level 1: Public Open Access', color: 'from-emerald-600 to-teal-600', badge: '👁️ Public Repository Access' };
+  const clearance = roleClearanceMap[roleName] || defaultClearance;
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-md animate-fade-in">

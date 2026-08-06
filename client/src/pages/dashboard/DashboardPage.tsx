@@ -9,13 +9,9 @@ import {
   ShieldCheck,
   GitBranch,
   ArrowRight,
-  Clock,
-  CheckCircle2,
-  TrendingUp,
   Activity,
   Zap,
 } from 'lucide-react';
-import { toast } from 'sonner';
 
 export const DashboardPage: React.FC = () => {
   const { user } = useAuth();
@@ -55,7 +51,14 @@ export const DashboardPage: React.FC = () => {
     },
   };
 
-  const currentRole = roleConfig[roleName] || roleConfig.PUBLIC_VIEWER;
+  const defaultRole = {
+    title: 'Public AICTE Model Curriculum Repository',
+    desc: 'Browse, search, and download official AICTE Model Curricula & NEP compliant degree syllabi.',
+    color: 'from-emerald-600 via-teal-600 to-emerald-700',
+    icon: '👁️',
+  };
+
+  const currentRole = roleConfig[roleName] || defaultRole;
 
   const stats = [
     { id: 'stat-1', title: 'Active Model Curriculums', value: '42', icon: BookOpen, change: '+12% this month', detail: '42 AICTE Model Curricula active across B.Tech, M.Tech, MCA & Diploma programs.' },
@@ -65,10 +68,10 @@ export const DashboardPage: React.FC = () => {
   ];
 
   const recentActivities = [
-    { id: 'act-1', user: 'Dr. Rajesh Sharma', action: 'Updated Module 3 topics in PCC-CS-401 (Data Structures)', time: '10 mins ago', type: 'commit' },
-    { id: 'act-2', user: 'Prof. Anil Sahasrabudhe', action: 'Approved Merge Request MR-1 for NEP Credit Alignment', time: '1 hour ago', type: 'merge' },
-    { id: 'act-3', user: 'AI Assistant', action: 'Generated 5 Bloom Taxonomy COs for Deep Learning (PCC-AI-501)', time: '2 hours ago', type: 'ai' },
-    { id: 'act-4', user: 'Dr. Priya Nair', action: 'Added review annotation on Universal Human Values (HSMC-101)', time: '4 hours ago', type: 'review' },
+    { id: 'act-1', user: 'Dr. Rajesh Sharma', action: 'Updated Module 3 topics in PCC-CS-401 (Data Structures)', time: '10 mins ago' },
+    { id: 'act-2', user: 'Prof. Anil Sahasrabudhe', action: 'Approved Merge Request MR-1 for NEP Credit Alignment', time: '1 hour ago' },
+    { id: 'act-3', user: 'AI Assistant', action: 'Generated 5 Bloom Taxonomy COs for Deep Learning (PCC-AI-501)', time: '2 hours ago' },
+    { id: 'act-4', user: 'Dr. Priya Nair', action: 'Added review annotation on Universal Human Values (HSMC-101)', time: '4 hours ago' },
   ];
 
   return (

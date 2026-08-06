@@ -80,6 +80,10 @@ export class BaseRepository<T extends Document> {
     return this.model.findByIdAndDelete(id).exec();
   }
 
+  async find(filter: FilterQuery<T> = {}): Promise<T[]> {
+    return (await this.model.find(filter).exec()) as any[];
+  }
+
   async count(filter: FilterQuery<T> = {}): Promise<number> {
     return this.model.countDocuments(filter).exec();
   }

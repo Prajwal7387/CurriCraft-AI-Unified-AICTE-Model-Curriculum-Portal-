@@ -59,7 +59,7 @@ export class UserController {
    * PATCH /api/v1/users/:id/deactivate
    */
   deactivateUser = asyncHandler(async (req: Request, res: Response) => {
-    const user = await userService.deactivateUser(req.params.id);
+    const user = await userService.deactivateUser(req.params.id as string);
 
     res.status(HttpStatus.OK).json(
       new ApiResponse(HttpStatus.OK, 'User deactivated successfully', {
@@ -72,7 +72,7 @@ export class UserController {
    * PATCH /api/v1/users/:id/activate
    */
   activateUser = asyncHandler(async (req: Request, res: Response) => {
-    const user = await userService.activateUser(req.params.id);
+    const user = await userService.activateUser(req.params.id as string);
 
     res.status(HttpStatus.OK).json(
       new ApiResponse(HttpStatus.OK, 'User activated successfully', {

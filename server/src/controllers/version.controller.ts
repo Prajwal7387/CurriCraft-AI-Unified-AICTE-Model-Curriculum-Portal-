@@ -1,31 +1,31 @@
 import { Request, Response } from 'express';
 import { versionService } from '../services/version.service';
-import { asyncHandler } from '../utils/asyncHandler';
 import { ApiResponse } from '../utils/ApiResponse';
-import { HttpStatus } from '../constants';
+import { HttpStatus } from '../constants/httpStatus';
+import { asyncHandler } from '../utils/asyncHandler';
 
 export class VersionController {
+  getBranches = asyncHandler(async (req: Request, res: Response) => {
+    const branches = await versionService.getBranches(req.params.curriculumId as string);
+    res.status(HttpStatus.OK).json(
+      new ApiResponse(HttpStatus.OK, 'Branches retrieved', branches)
+    );
+  });
+
   createBranch = asyncHandler(async (req: Request, res: Response) => {
     const branch = await versionService.createBranch(
-      req.body.curriculumId,
+      req.params.curriculumId as string,
       req.body.name,
-      req.user!._id.toString()
+      req.body.fromBranch || 'main'
     );
     res.status(HttpStatus.CREATED).json(
       new ApiResponse(HttpStatus.CREATED, 'Branch created successfully', branch)
     );
   });
 
-  getBranches = asyncHandler(async (req: Request, res: Response) => {
-    const branches = await versionService.getBranches(req.params.curriculumId);
-    res.status(HttpStatus.OK).json(
-      new ApiResponse(HttpStatus.OK, 'Branches retrieved', branches)
-    );
-  });
-
   getCommits = asyncHandler(async (req: Request, res: Response) => {
     const commits = await versionService.getCommits(
-      req.params.curriculumId,
+      req.params.curriculumId as string,
       (req.query.branch as string) || 'main'
     );
     res.status(HttpStatus.OK).json(
@@ -36,9 +36,9 @@ export class VersionController {
   createCommit = asyncHandler(async (req: Request, res: Response) => {
     const commit = await versionService.createCommit(
       req.body.curriculumId,
-      req.body.branchName,
       req.body.message,
       req.user!._id.toString(),
+      req.body.branchName,
       req.body.tag
     );
     res.status(HttpStatus.CREATED).json(
@@ -61,26 +61,30 @@ export class VersionController {
   });
 
   getMergeRequests = asyncHandler(async (req: Request, res: Response) => {
-    const mrs = await versionService.getMergeRequests(req.params.curriculumId);
+    const mrs = await versionService.getMergeRequests(req.params.curriculumId as string);
     res.status(HttpStatus.OK).json(
       new ApiResponse(HttpStatus.OK, 'Merge requests retrieved', mrs)
     );
   });
 
   mergeRequest = asyncHandler(async (req: Request, res: Response) => {
-    const mr = await versionService.mergeRequest(req.params.mrId, req.user!._id.toString());
+    const mr = await versionService.mergeRequest(
+      req.params.mrId as string,
+      req.user!._id.toString()
+    );
     res.status(HttpStatus.OK).json(
       new ApiResponse(HttpStatus.OK, 'Merge request approved and merged', mr)
     );
   });
 
   rollback = asyncHandler(async (req: Request, res: Response) => {
-    const restored = await versionService.rollbackToCommit(
+    const result = await versionService.rollback(
       req.body.curriculumId,
-      req.body.commitHash
+      req.body.commitHash,
+      req.user!._id.toString()
     );
     res.status(HttpStatus.OK).json(
-      new ApiResponse(HttpStatus.OK, 'Rolled back to commit snapshot', restored)
+      new ApiResponse(HttpStatus.OK, 'Curriculum state rolled back', result)
     );
   });
 }

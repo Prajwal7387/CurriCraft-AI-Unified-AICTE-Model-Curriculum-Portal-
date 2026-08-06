@@ -189,13 +189,13 @@ export class AuthService {
     // Create session with valid refresh token
     const refreshExpiry = new Date(Date.now() + tokenService.getRefreshExpiryMs());
     const session = await sessionRepository.createSession({
-      _id: sessionId as any,
+      _id: sessionId,
       userId: user._id.toString(),
       refreshToken: tokens.refreshToken,
       ipAddress,
       userAgent,
       expiresAt: refreshExpiry,
-    });
+    } as any);
 
     // Update last login
     await userRepository.updateById(user._id.toString(), {
@@ -283,13 +283,13 @@ export class AuthService {
     // Create new session with new refresh token (rotation)
     const refreshExpiry = new Date(Date.now() + tokenService.getRefreshExpiryMs());
     await sessionRepository.createSession({
-      _id: newSessionId as any,
+      _id: newSessionId,
       userId: user._id.toString(),
       refreshToken: tokens.refreshToken,
       ipAddress,
       userAgent,
       expiresAt: refreshExpiry,
-    });
+    } as any);
 
     return {
       accessToken: tokens.accessToken,
@@ -424,13 +424,13 @@ export class AuthService {
 
     const refreshExpiry = new Date(Date.now() + tokenService.getRefreshExpiryMs());
     const session = await sessionRepository.createSession({
-      _id: sessionId as any,
+      _id: sessionId,
       userId: user._id.toString(),
       refreshToken: tokens.refreshToken,
       ipAddress,
       userAgent,
       expiresAt: refreshExpiry,
-    });
+    } as any);
 
     await userRepository.updateById(user._id.toString(), {
       lastLogin: new Date(),
