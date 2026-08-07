@@ -32,6 +32,7 @@ export const registerSchema = z.object({
       .string()
       .regex(/^[+]?[\d\s-]{10,15}$/, 'Please provide a valid phone number')
       .optional(),
+    role: z.string().trim().optional(),
   }),
 });
 
@@ -96,6 +97,6 @@ export const resetPasswordSchema = z.object({
 
 export const refreshTokenSchema = z.object({
   body: z.object({
-    refreshToken: z.string().min(1, 'Refresh token is required'),
+    refreshToken: z.string().min(1, 'Refresh token is required').optional(),
   }),
 });

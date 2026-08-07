@@ -21,13 +21,17 @@ export const connectDatabase = async (): Promise<void> => {
     logger.warn('⚠️ Local MongoDB not found. Attempting MongoMemoryServer...');
     try {
       const { MongoMemoryServer } = await import('mongodb-memory-server');
-      const mongoServer = await MongoMemoryServer.create();
+      const createWithTimeout = Promise.race([
+        MongoMemoryServer.create(),
+        new Promise<never>((_, reject) => setTimeout(() => reject(new Error('Memory server download timeout')), 3000))
+      ]);
+      const mongoServer = await createWithTimeout;
       const mongoUri = mongoServer.getUri();
       
       await mongoose.connect(mongoUri);
       logger.info(`✅ In-Memory MongoDB connected: ${mongoUri}`);
     } catch (memError) {
-      logger.warn('⚠️ In-Memory MongoDB binary unavailable. Running in Mock DB mode for instant preview.');
+      logger.warn('⚠️ MongoDB unavailable. Running in offline/mock DB mode.');
     }
   }
 

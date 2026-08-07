@@ -1,8 +1,11 @@
 import React, { useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { RootState } from '@/store';
+import { RootState, AppDispatch } from '@/store';
 import { toggleSidebar } from '@/store/slices/uiSlice';
+import { logout as logoutAction } from '@/store/slices/authSlice';
 import { useAuth } from '@/hooks/useAuth';
+import { authApi } from '@/services/auth.service';
+import { disconnectSocket } from '@/lib/socket';
 import { ThemeToggle } from '@/components/shared/ThemeToggle';
 import { Button } from '@/components/ui/button';
 import { UserProfileModal } from '@/components/shared/UserProfileModal';
@@ -10,11 +13,12 @@ import { Menu, Bell, LogOut, Search, UserCheck, ShieldCheck, ChevronDown, Sparkl
 import { toast } from 'sonner';
 
 export const Header: React.FC = () => {
-  const dispatch = useDispatch();
+  const dispatch = useDispatch<AppDispatch>();
   const { user, login, logout } = useAuth();
   const [isRoleDropdownOpen, setIsRoleDropdownOpen] = useState(false);
   const [isSwitchingRole, setIsSwitchingRole] = useState(false);
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
+  const [isNotifOpen, setIsNotifOpen] = useState(false);
 
   const demoAccounts = [
     { name: 'Dr. Abhay Jere', role: 'AICTE Admin', email: 'admin@curricraft.in', pass: 'Admin@123456', icon: '👑', color: 'from-violet-600 to-indigo-600' },
@@ -29,15 +33,17 @@ export const Header: React.FC = () => {
       setIsSwitchingRole(true);
       setIsRoleDropdownOpen(false);
 
-      // Clear previous user tokens to prevent header collision
-      localStorage.removeItem('accessToken');
-      localStorage.removeItem('refreshToken');
+      // Properly logout current session first (server-side only, keep local state active to prevent flash)
+      try {
+        await authApi.logout();
+      } catch {
+        // Ignore — may fail if token already expired
+      }
+      disconnectSocket();
 
+      // Login as the new role — login() handles replacing local state and navigation
       await login(email, pass);
       toast.success(`Switched role to ${roleName}!`);
-      
-      // Navigate cleanly to dashboard
-      window.location.href = '/dashboard';
     } catch (err: any) {
       toast.error('Failed to switch role. Please try again.');
     } finally {
@@ -116,10 +122,46 @@ export const Header: React.FC = () => {
         <ThemeToggle />
 
         {/* Notifications */}
-        <Button variant="ghost" size="icon" className="relative rounded-full">
-          <Bell className="h-4 w-4" />
-          <span className="absolute top-2 right-2 h-2 w-2 rounded-full bg-primary" />
-        </Button>
+        <div className="relative">
+          <Button 
+            variant="ghost" 
+            size="icon" 
+            className="relative rounded-full"
+            onClick={() => setIsNotifOpen(!isNotifOpen)}
+          >
+            <Bell className="h-4 w-4" />
+            <span className="absolute top-2 right-2 h-2 w-2 rounded-full bg-primary animate-pulse" />
+          </Button>
+
+          {isNotifOpen && (
+            <div className="absolute right-0 mt-2 w-80 rounded-2xl border bg-card p-2 shadow-2xl z-50 animate-fade-in space-y-1 text-xs">
+              <div className="px-3 py-2 text-[10px] font-bold uppercase tracking-wider text-muted-foreground border-b flex justify-between items-center mb-2">
+                <span>Notifications</span>
+                <span className="bg-primary/20 text-primary px-1.5 py-0.5 rounded text-[8px]">2 New</span>
+              </div>
+              <div className="space-y-1">
+                <div className="p-2.5 rounded-xl bg-primary/5 border border-primary/10 hover:bg-muted transition-colors cursor-pointer">
+                  <div className="font-bold text-foreground flex items-center gap-2">
+                    <span className="h-1.5 w-1.5 rounded-full bg-primary" />
+                    New Course Module Assigned
+                  </div>
+                  <div className="text-[10px] text-muted-foreground mt-1 ml-3.5">
+                    Dr. Abhay Jere assigned you to review the "AI in Healthcare" module.
+                  </div>
+                </div>
+                <div className="p-2.5 rounded-xl bg-primary/5 border border-primary/10 hover:bg-muted transition-colors cursor-pointer">
+                  <div className="font-bold text-foreground flex items-center gap-2">
+                    <span className="h-1.5 w-1.5 rounded-full bg-primary" />
+                    Curriculum Approved
+                  </div>
+                  <div className="text-[10px] text-muted-foreground mt-1 ml-3.5">
+                    The Bureau Head approved your B.Tech Computer Science changes.
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
 
         {/* User Badge & Avatar Trigger */}
         {user && (

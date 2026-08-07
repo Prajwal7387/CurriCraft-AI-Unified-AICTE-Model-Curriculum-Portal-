@@ -26,6 +26,10 @@ const roleDescriptions: Record<RoleName, string> = {
  */
 export async function seedRolesOnStartup(): Promise<void> {
   try {
+    if (mongoose.connection.readyState !== 1) {
+      logger.warn('⚠️ MongoDB not connected; skipping role startup seeding.');
+      return;
+    }
     const existingCount = await Role.countDocuments();
 
     if (existingCount >= Object.values(RoleName).length) {

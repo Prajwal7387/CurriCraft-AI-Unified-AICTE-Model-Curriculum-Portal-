@@ -175,6 +175,17 @@ UserSchema.methods.toSafeObject = function (): Partial<IUser> {
   delete obj.otpExpiry;
   delete obj.refreshTokens;
   delete obj.__v;
+  // Normalize _id → id for client compatibility
+  if (obj._id && !obj.id) {
+    obj.id = obj._id.toString();
+  }
+  // Normalize nested role object
+  if (obj.role && typeof obj.role === 'object') {
+    if (obj.role._id && !obj.role.id) {
+      obj.role.id = obj.role._id.toString();
+    }
+    delete obj.role.__v;
+  }
   return obj;
 };
 

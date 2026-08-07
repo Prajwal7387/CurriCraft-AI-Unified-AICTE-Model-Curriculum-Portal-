@@ -6,10 +6,10 @@ import { motion } from 'framer-motion';
 
 export const AuthLayout: React.FC = () => {
   return (
-    <div className="relative min-h-screen w-full flex items-center justify-center overflow-hidden bg-slate-950 text-slate-100 gradient-mesh selection:bg-indigo-500 selection:text-white">
+    <div className="relative min-h-screen w-full flex items-center justify-center overflow-hidden bg-background text-foreground gradient-mesh selection:bg-indigo-500 selection:text-white">
       {/* Background Animated Floating Orbs */}
       <motion.div
-        className="orb w-96 h-96 bg-violet-600/30 top-[-10%] left-[-10%]"
+        className="orb w-96 h-96 bg-violet-600/30 dark:bg-violet-600/30 top-[-10%] left-[-10%]"
         animate={{
           x: [0, 40, 0],
           y: [0, 30, 0],
@@ -21,7 +21,7 @@ export const AuthLayout: React.FC = () => {
         }}
       />
       <motion.div
-        className="orb w-96 h-96 bg-indigo-600/30 bottom-[-10%] right-[-10%]"
+        className="orb w-96 h-96 bg-indigo-400/20 dark:bg-indigo-600/30 bottom-[-10%] right-[-10%]"
         animate={{
           x: [0, -30, 0],
           y: [0, -40, 0],
@@ -47,7 +47,7 @@ export const AuthLayout: React.FC = () => {
       </div>
 
       {/* Footer Branding */}
-      <footer className="absolute bottom-4 text-center text-xs text-slate-400 z-10">
+      <footer className="absolute bottom-4 text-center text-xs text-muted-foreground z-10">
         © {new Date().getFullYear()} AICTE Model Curriculum Portal — Powered by CurriCraft AI
       </footer>
     </div>

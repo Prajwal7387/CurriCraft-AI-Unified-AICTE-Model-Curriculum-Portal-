@@ -11,6 +11,7 @@ export interface RegisterDto {
   designation?: string;
   institution?: string;
   phone?: string;
+  role?: string;
 }
 
 export interface LoginDto {

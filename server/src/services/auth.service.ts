@@ -1,4 +1,3 @@
-import mongoose from 'mongoose';
 import { userRepository } from '../repositories/user.repository';
 import { roleRepository } from '../repositories/role.repository';
 import { sessionRepository } from '../repositories/session.repository';
@@ -41,12 +40,21 @@ export class AuthService {
       throw new ApiError(HttpStatus.CONFLICT, 'An account with this email already exists');
     }
 
-    // Get default role
-    let defaultRole = await roleRepository.findByName(RoleName.PUBLIC_VIEWER);
-    if (!defaultRole) {
-      defaultRole = await roleRepository.getDefaultRole();
+    // Get requested or default role
+    let assignedRole;
+    if (dto.role) {
+      assignedRole = await roleRepository.findByName(dto.role as RoleName);
+      if (!assignedRole) {
+        throw new ApiError(HttpStatus.BAD_REQUEST, `Invalid role: ${dto.role}`);
+      }
+    } else {
+      assignedRole = await roleRepository.findByName(RoleName.PUBLIC_VIEWER);
+      if (!assignedRole) {
+        assignedRole = await roleRepository.getDefaultRole();
+      }
     }
-    if (!defaultRole) {
+    
+    if (!assignedRole) {
       throw new ApiError(
         HttpStatus.INTERNAL_SERVER_ERROR,
         'Default role not found. Please run the seed script.'
@@ -62,14 +70,17 @@ export class AuthService {
       designation: dto.designation,
       institution: dto.institution,
       phone: dto.phone,
-      role: defaultRole._id,
-      isEmailVerified: false,
+      role: assignedRole._id,
+      isEmailVerified: true, // OTP bypassed
       isActive: true,
     } as any);
 
-    // Generate and send verification OTP
-    const otp = await otpService.generateAndStore(dto.email);
-    await emailService.sendVerificationOtp(dto.email, dto.name, otp);
+    // Send welcome email immediately (bypassing OTP)
+    try {
+      await emailService.sendWelcomeEmail(dto.email, dto.name);
+    } catch (err) {
+      logger.warn(`Failed to send welcome email to ${dto.email}: ${err}`);
+    }
 
     // Audit log
     await auditService.log({
@@ -174,10 +185,19 @@ export class AuthService {
     const roleName = role.name as RoleName;
     const permissions = RolePermissions[roleName] || [];
 
-    // Generate session ID upfront
-    const sessionId = new mongoose.Types.ObjectId().toString();
+    // Create session first to get the real Mongoose-generated _id
+    const refreshExpiry = new Date(Date.now() + tokenService.getRefreshExpiryMs());
+    const session = await sessionRepository.createSession({
+      userId: user._id.toString(),
+      refreshToken: 'pending',
+      ipAddress,
+      userAgent,
+      expiresAt: refreshExpiry,
+    } as any);
 
-    // Generate token pair
+    const sessionId = session._id.toString();
+
+    // Generate token pair using the actual session ID from DB
     const tokens = tokenService.generateTokenPair(
       user._id.toString(),
       user.email,
@@ -186,16 +206,8 @@ export class AuthService {
       sessionId
     );
 
-    // Create session with valid refresh token
-    const refreshExpiry = new Date(Date.now() + tokenService.getRefreshExpiryMs());
-    const session = await sessionRepository.createSession({
-      _id: sessionId,
-      userId: user._id.toString(),
-      refreshToken: tokens.refreshToken,
-      ipAddress,
-      userAgent,
-      expiresAt: refreshExpiry,
-    } as any);
+    // Update session with the actual refresh token
+    await sessionRepository.updateRefreshToken(sessionId, tokens.refreshToken);
 
     // Update last login
     await userRepository.updateById(user._id.toString(), {
@@ -207,7 +219,7 @@ export class AuthService {
       userId: user._id.toString(),
       action: 'LOGIN',
       resource: 'Session',
-      resourceId: session._id.toString(),
+      resourceId: sessionId,
       ipAddress,
       userAgent,
     });
@@ -268,10 +280,19 @@ export class AuthService {
     // Invalidate old session
     await sessionRepository.invalidateSession(session._id.toString());
 
-    // Generate session ID upfront
-    const newSessionId = new mongoose.Types.ObjectId().toString();
+    // Create new session first to get real Mongoose-generated _id
+    const refreshExpiry = new Date(Date.now() + tokenService.getRefreshExpiryMs());
+    const newSession = await sessionRepository.createSession({
+      userId: user._id.toString(),
+      refreshToken: 'pending',
+      ipAddress,
+      userAgent,
+      expiresAt: refreshExpiry,
+    } as any);
 
-    // Generate new token pair
+    const newSessionId = newSession._id.toString();
+
+    // Generate new token pair using actual session ID
     const tokens = tokenService.generateTokenPair(
       user._id.toString(),
       user.email,
@@ -280,16 +301,8 @@ export class AuthService {
       newSessionId
     );
 
-    // Create new session with new refresh token (rotation)
-    const refreshExpiry = new Date(Date.now() + tokenService.getRefreshExpiryMs());
-    await sessionRepository.createSession({
-      _id: newSessionId,
-      userId: user._id.toString(),
-      refreshToken: tokens.refreshToken,
-      ipAddress,
-      userAgent,
-      expiresAt: refreshExpiry,
-    } as any);
+    // Update session with the actual refresh token
+    await sessionRepository.updateRefreshToken(newSessionId, tokens.refreshToken);
 
     return {
       accessToken: tokens.accessToken,
@@ -411,8 +424,17 @@ export class AuthService {
     const roleName = role.name as RoleName;
     const permissions = RolePermissions[roleName] || [];
 
-    // Generate session ID upfront
-    const sessionId = new mongoose.Types.ObjectId().toString();
+    // Create session first to get real Mongoose-generated _id
+    const refreshExpiry = new Date(Date.now() + tokenService.getRefreshExpiryMs());
+    const session = await sessionRepository.createSession({
+      userId: user._id.toString(),
+      refreshToken: 'pending',
+      ipAddress,
+      userAgent,
+      expiresAt: refreshExpiry,
+    } as any);
+
+    const sessionId = session._id.toString();
 
     const tokens = tokenService.generateTokenPair(
       user._id.toString(),
@@ -422,15 +444,8 @@ export class AuthService {
       sessionId
     );
 
-    const refreshExpiry = new Date(Date.now() + tokenService.getRefreshExpiryMs());
-    const session = await sessionRepository.createSession({
-      _id: sessionId,
-      userId: user._id.toString(),
-      refreshToken: tokens.refreshToken,
-      ipAddress,
-      userAgent,
-      expiresAt: refreshExpiry,
-    } as any);
+    // Update session with the actual refresh token
+    await sessionRepository.updateRefreshToken(sessionId, tokens.refreshToken);
 
     await userRepository.updateById(user._id.toString(), {
       lastLogin: new Date(),

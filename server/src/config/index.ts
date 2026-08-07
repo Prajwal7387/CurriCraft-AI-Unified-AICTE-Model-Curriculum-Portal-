@@ -10,7 +10,7 @@ export const config = {
   apiVersion: process.env.API_VERSION || 'v1',
 
   // MongoDB
-  mongodbUri: process.env.MONGODB_URI || 'mongodb://localhost:27017/curricraft',
+  mongodbUri: process.env.MONGODB_URI || 'mongodb://127.0.0.1:27017/curricraft',
 
   // Redis
   redis: {

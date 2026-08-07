@@ -65,6 +65,16 @@ export class SessionRepository extends BaseRepository<ISession> {
       })
       .exec();
   }
+
+  /**
+   * Update the refresh token on a session.
+   * Used when creating sessions with a placeholder token before JWT generation.
+   */
+  async updateRefreshToken(sessionId: string, refreshToken: string): Promise<void> {
+    await this.model
+      .findByIdAndUpdate(sessionId, { refreshToken })
+      .exec();
+  }
 }
 
 export const sessionRepository = new SessionRepository();

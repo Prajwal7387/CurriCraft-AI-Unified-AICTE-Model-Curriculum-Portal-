@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="url(#grad)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+  <defs>
+    <linearGradient id="grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#ea580c;stop-opacity:1" /> <!-- orange-600 -->
+      <stop offset="50%" style="stop-color:#f59e0b;stop-opacity:1" /> <!-- amber-500 -->
+      <stop offset="100%" style="stop-color:#facc15;stop-opacity:1" /> <!-- yellow-400 -->
+    </linearGradient>
+  </defs>
+  
+  <rect width="24" height="24" rx="6" fill="#1e293b" stroke="none" /> <!-- slate-800 background -->
+
+  <g transform="translate(1, 1) scale(0.9)">
+    <path d="M12 2v2" stroke="url(#grad)" />
+    <path d="M12 20v2" stroke="url(#grad)" />
+    <path d="m4.93 4.93 1.41 1.41" stroke="url(#grad)" />
+    <path d="m17.66 17.66 1.41 1.41" stroke="url(#grad)" />
+    <path d="M2 12h2" stroke="url(#grad)" />
+    <path d="M20 12h2" stroke="url(#grad)" />
+    <path d="m6.34 17.66-1.41 1.41" stroke="url(#grad)" />
+    <path d="m19.07 4.93-1.41 1.41" stroke="url(#grad)" />
+    
+    <path d="M12 18a4 4 0 0 0 4-4c0-3-4-6-4-8-4 2-4 5-4 8a4 4 0 0 0 4 4Z" fill="url(#grad)" stroke="none" />
+  </g>
+</svg>

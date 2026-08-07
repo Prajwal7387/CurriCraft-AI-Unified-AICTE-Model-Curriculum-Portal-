@@ -1,4 +1,6 @@
 import axios from 'axios';
+import { store } from '@/store';
+import { updateTokens, logout as logoutAction } from '@/store/slices/authSlice';
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || '/api/v1';
 
@@ -26,6 +28,24 @@ api.interceptors.request.use(
   (error) => Promise.reject(error)
 );
 
+// Flag to prevent multiple simultaneous refresh attempts
+let isRefreshing = false;
+let failedQueue: Array<{
+  resolve: (value: any) => void;
+  reject: (reason?: any) => void;
+}> = [];
+
+const processQueue = (error: any, token: string | null = null) => {
+  failedQueue.forEach((prom) => {
+    if (error) {
+      prom.reject(error);
+    } else {
+      prom.resolve(token);
+    }
+  });
+  failedQueue = [];
+};
+
 // Response interceptor — handle 401 and refresh
 api.interceptors.response.use(
   (response) => response,
@@ -34,14 +54,24 @@ api.interceptors.response.use(
 
     // If 401 and not already retried
     if (error.response?.status === 401 && !originalRequest._retry) {
+      // If already refreshing, queue this request
+      if (isRefreshing) {
+        return new Promise((resolve, reject) => {
+          failedQueue.push({ resolve, reject });
+        }).then((token) => {
+          originalRequest.headers.Authorization = `Bearer ${token}`;
+          return api(originalRequest);
+        });
+      }
+
       originalRequest._retry = true;
+      isRefreshing = true;
 
       try {
         const refreshToken = localStorage.getItem('refreshToken');
         if (!refreshToken) {
-          // No refresh token — redirect to login
-          localStorage.removeItem('accessToken');
-          localStorage.removeItem('refreshToken');
+          // No refresh token — force logout
+          store.dispatch(logoutAction());
           window.location.href = '/login';
           return Promise.reject(error);
         }
@@ -52,18 +82,23 @@ api.interceptors.response.use(
 
         const { accessToken, refreshToken: newRefreshToken } = data.data;
 
-        localStorage.setItem('accessToken', accessToken);
-        localStorage.setItem('refreshToken', newRefreshToken);
+        // Sync both localStorage AND Redux store
+        store.dispatch(updateTokens({ accessToken, refreshToken: newRefreshToken }));
+
+        // Process any queued requests with the new token
+        processQueue(null, accessToken);
 
         // Retry original request with new token
         originalRequest.headers.Authorization = `Bearer ${accessToken}`;
         return api(originalRequest);
       } catch (refreshError) {
-        // Refresh failed — clear tokens and redirect
-        localStorage.removeItem('accessToken');
-        localStorage.removeItem('refreshToken');
+        // Refresh failed — clean logout via Redux (clears localStorage too)
+        processQueue(refreshError, null);
+        store.dispatch(logoutAction());
         window.location.href = '/login';
         return Promise.reject(refreshError);
+      } finally {
+        isRefreshing = false;
       }
     }
 

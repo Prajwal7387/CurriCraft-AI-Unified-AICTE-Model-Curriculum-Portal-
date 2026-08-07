@@ -42,7 +42,8 @@ export const useAuth = () => {
   }, [dispatch, navigate]);
 
   const checkAuth = useCallback(async () => {
-    if (!accessToken) {
+    const token = localStorage.getItem('accessToken');
+    if (!token) {
       dispatch(setLoading(false));
       return;
     }
@@ -53,7 +54,7 @@ export const useAuth = () => {
     } catch {
       dispatch(logoutAction());
     }
-  }, [accessToken, dispatch]);
+  }, [dispatch]);
 
   const hasPermission = useCallback(
     (permission: string) => {

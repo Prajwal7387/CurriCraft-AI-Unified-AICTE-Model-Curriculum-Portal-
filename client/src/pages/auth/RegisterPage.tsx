@@ -17,12 +17,15 @@ const registerSchema = z.object({
   password: z
     .string()
     .min(8, 'Minimum 8 characters')
-    .regex(/[A-Z]/, 'Must contain uppercase')
-    .regex(/[0-9]/, 'Must contain number'),
+    .regex(
+      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]/,
+      'Must contain uppercase, lowercase, number & special char'
+    ),
   institution: z.string().optional(),
   department: z.string().optional(),
   designation: z.string().optional(),
   phone: z.string().optional(),
+  role: z.string().optional(),
 });
 
 type RegisterFormValues = z.infer<typeof registerSchema>;
@@ -44,20 +47,26 @@ export const RegisterPage: React.FC = () => {
     try {
       setIsLoading(true);
       await registerUser(values);
-      toast.success('Registration successful! Check your email for OTP verification.');
-      navigate('/verify-email', { state: { email: values.email } });
+      toast.success('Registration successful! You can now log in.');
+      navigate('/login', { state: { email: values.email } });
     } catch (err: any) {
-      toast.error(err.response?.data?.message || 'Registration failed. Try again.');
+      const responseData = err.response?.data;
+      if (responseData?.errors && Array.isArray(responseData.errors)) {
+        // Handle Zod validation errors from backend
+        toast.error(`Validation error: ${responseData.errors[0].message}`);
+      } else {
+        toast.error(responseData?.message || 'Registration failed. Try again.');
+      }
     } finally {
       setIsLoading(false);
     }
   };
 
   return (
-    <Card className="glass-dark border-white/10 shadow-2xl text-white backdrop-blur-2xl max-w-lg mx-auto">
+    <Card className="glass-dark border-border/50 shadow-2xl backdrop-blur-2xl max-w-lg mx-auto">
       <CardHeader className="space-y-1 text-center pb-4">
         <CardTitle className="text-2xl font-bold tracking-tight">Expert Registration</CardTitle>
-        <CardDescription className="text-slate-400 text-xs">
+        <CardDescription className="text-muted-foreground text-xs">
           Join AICTE Model Curriculum Development Panel
         </CardDescription>
       </CardHeader>
@@ -65,36 +74,36 @@ export const RegisterPage: React.FC = () => {
       <CardContent>
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-3">
           <div className="space-y-1">
-            <Label className="text-xs text-slate-300" required>Full Name</Label>
+            <Label className="text-xs text-muted-foreground" required>Full Name</Label>
             <Input
               placeholder="Dr. Rajesh Sharma"
               icon={<User className="h-4 w-4" />}
               error={errors.name?.message}
-              className="bg-slate-900/60 border-slate-800 text-white placeholder:text-slate-500"
+              className="bg-muted/60 border-border text-foreground placeholder:text-muted-foreground/60"
               {...register('name')}
             />
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div className="space-y-1">
-              <Label className="text-xs text-slate-300" required>Official Email</Label>
+              <Label className="text-xs text-muted-foreground" required>Official Email</Label>
               <Input
                 type="email"
                 placeholder="rajesh@iit.ac.in"
                 icon={<Mail className="h-4 w-4" />}
                 error={errors.email?.message}
-                className="bg-slate-900/60 border-slate-800 text-white placeholder:text-slate-500"
+                className="bg-muted/60 border-border text-foreground placeholder:text-muted-foreground/60"
                 {...register('email')}
               />
             </div>
             <div className="space-y-1">
-              <Label className="text-xs text-slate-300" required>Password</Label>
+              <Label className="text-xs text-muted-foreground" required>Password</Label>
               <Input
                 type="password"
                 placeholder="••••••••"
                 icon={<Lock className="h-4 w-4" />}
                 error={errors.password?.message}
-                className="bg-slate-900/60 border-slate-800 text-white placeholder:text-slate-500"
+                className="bg-muted/60 border-border text-foreground placeholder:text-muted-foreground/60"
                 {...register('password')}
               />
             </div>
@@ -102,23 +111,37 @@ export const RegisterPage: React.FC = () => {
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div className="space-y-1">
-              <Label className="text-xs text-slate-300">Institution / University</Label>
+              <Label className="text-xs text-muted-foreground">Institution / University</Label>
               <Input
                 placeholder="IIT Delhi"
                 icon={<Building className="h-4 w-4" />}
-                className="bg-slate-900/60 border-slate-800 text-white placeholder:text-slate-500"
+                className="bg-muted/60 border-border text-foreground placeholder:text-muted-foreground/60"
                 {...register('institution')}
               />
             </div>
             <div className="space-y-1">
-              <Label className="text-xs text-slate-300">Department</Label>
+              <Label className="text-xs text-muted-foreground">Department</Label>
               <Input
                 placeholder="Computer Science"
                 icon={<UserCheck className="h-4 w-4" />}
-                className="bg-slate-900/60 border-slate-800 text-white placeholder:text-slate-500"
+                className="bg-muted/60 border-border text-foreground placeholder:text-muted-foreground/60"
                 {...register('department')}
               />
             </div>
+          </div>
+
+          <div className="space-y-1">
+            <Label className="text-xs text-muted-foreground">Account Role (Demo Only)</Label>
+            <select
+              className="flex h-10 w-full rounded-md border bg-muted/60 border-border text-foreground px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-primary focus:border-transparent"
+              {...register('role')}
+            >
+              <option value="CURRICULUM_EXPERT">Curriculum Expert</option>
+              <option value="AICTE_ADMIN">AICTE Admin</option>
+              <option value="BUREAU_HEAD">Bureau Head</option>
+              <option value="REVIEWER">Reviewer</option>
+              <option value="PUBLIC_VIEWER">Public Viewer</option>
+            </select>
           </div>
 
           <Button
@@ -128,14 +151,14 @@ export const RegisterPage: React.FC = () => {
             className="w-full mt-4 font-semibold shadow-indigo-500/25"
             isLoading={isLoading}
           >
-            Create Account & Verify OTP <ArrowRight className="ml-2 h-4 w-4" />
+            Create Account <ArrowRight className="ml-2 h-4 w-4" />
           </Button>
         </form>
       </CardContent>
 
-      <CardFooter className="justify-center border-t border-white/5 pt-4 text-xs text-slate-400">
+      <CardFooter className="justify-center border-t border-border/50 pt-4 text-xs text-muted-foreground">
         Already registered?{' '}
-        <Link to="/login" className="text-indigo-400 hover:underline font-semibold ml-1">
+        <Link to="/login" className="text-primary hover:underline font-semibold ml-1">
           Sign In
         </Link>
       </CardFooter>

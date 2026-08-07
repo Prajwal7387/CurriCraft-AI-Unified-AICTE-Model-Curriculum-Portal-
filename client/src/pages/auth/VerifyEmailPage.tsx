@@ -49,13 +49,13 @@ export const VerifyEmailPage: React.FC = () => {
   };
 
   return (
-    <Card className="glass-dark border-white/10 shadow-2xl text-white backdrop-blur-2xl">
+    <Card className="glass-dark border-border/50 shadow-2xl backdrop-blur-2xl">
       <CardHeader className="space-y-1 text-center pb-4">
-        <div className="mx-auto w-10 h-10 rounded-xl bg-emerald-500/20 flex items-center justify-center text-emerald-400 mb-2">
+        <div className="mx-auto w-10 h-10 rounded-xl bg-emerald-500/20 flex items-center justify-center text-emerald-500 dark:text-emerald-400 mb-2">
           <MailCheck className="w-6 h-6" />
         </div>
         <CardTitle className="text-2xl font-bold tracking-tight">Verify Your Email</CardTitle>
-        <CardDescription className="text-slate-400 text-xs">
+        <CardDescription className="text-muted-foreground text-xs">
           Enter the 6-digit OTP code sent to your registered email
         </CardDescription>
       </CardHeader>
@@ -68,7 +68,7 @@ export const VerifyEmailPage: React.FC = () => {
               placeholder="Email address"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="bg-slate-900/60 border-slate-800 text-white placeholder:text-slate-500"
+              className="bg-muted/60 border-border text-foreground placeholder:text-muted-foreground/60"
             />
           </div>
 
@@ -79,7 +79,7 @@ export const VerifyEmailPage: React.FC = () => {
               placeholder="Enter 6-Digit OTP"
               value={otp}
               onChange={(e) => setOtp(e.target.value)}
-              className="bg-slate-900/60 border-slate-800 text-white text-center text-lg font-mono tracking-widest placeholder:tracking-normal placeholder:text-sm placeholder:text-slate-500"
+              className="bg-muted/60 border-border text-foreground text-center text-lg font-mono tracking-widest placeholder:tracking-normal placeholder:text-sm placeholder:text-muted-foreground/60"
             />
           </div>
 
@@ -97,7 +97,7 @@ export const VerifyEmailPage: React.FC = () => {
             <button
               type="button"
               onClick={handleResend}
-              className="text-xs text-indigo-400 hover:underline"
+              className="text-xs text-primary hover:underline"
             >
               Didn't receive code? Resend OTP
             </button>
