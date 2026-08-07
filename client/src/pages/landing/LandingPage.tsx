@@ -3,6 +3,8 @@ import { Link, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Logo } from '@/components/shared/Logo';
+import MagicRings from '@/components/ui/MagicRings';
+import MagicBento from '@/components/ui/MagicBento';
 import {
   Sparkles,
   BookOpen,
@@ -67,10 +69,28 @@ export const LandingPage: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100 font-sans selection:bg-primary selection:text-white relative overflow-x-hidden">
-      {/* Background Mesh Gradient Glows */}
-      <div className="fixed top-0 left-1/4 h-96 w-96 rounded-full bg-violet-600/15 blur-[120px] pointer-events-none" />
-      <div className="fixed top-1/3 right-10 h-[30rem] w-[30rem] rounded-full bg-indigo-600/10 blur-[150px] pointer-events-none" />
-      <div className="fixed bottom-10 left-10 h-96 w-96 rounded-full bg-purple-600/15 blur-[120px] pointer-events-none" />
+      {/* Background Animated Rings */}
+      <div className="fixed inset-0 z-0 opacity-40 pointer-events-none">
+        <MagicRings
+          color="#A855F7"
+          colorTwo="#6366F1"
+          ringCount={6}
+          speed={1}
+          attenuation={10}
+          lineThickness={2}
+          baseRadius={0.35}
+          radiusStep={0.15}
+          scaleRate={0.1}
+          opacity={1}
+          blur={0}
+          noiseAmount={0.05}
+          rotation={0}
+          ringGap={1.5}
+          followMouse={true}
+          mouseInfluence={0.05}
+          hoverScale={1}
+        />
+      </div>
 
       {/* Floating Header Navbar */}
       <header className="sticky top-4 z-50 max-w-6xl mx-auto px-4">
@@ -330,26 +350,29 @@ export const LandingPage: React.FC = () => {
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
           {[
-            { role: 'AICTE Admin', name: 'Dr. Abhay Jere', email: 'admin@curricraft.in', pass: 'Admin@123456', icon: '👑', color: 'border-violet-500/40 hover:border-violet-500' },
-            { role: 'Bureau Head', name: 'Prof. Anil Sahasrabudhe', email: 'bureau@curricraft.in', pass: 'Bureau@123456', icon: '🏢', color: 'border-blue-500/40 hover:border-blue-500' },
-            { role: 'Curriculum Expert', name: 'Dr. Rajesh Sharma', email: 'expert@curricraft.in', pass: 'Expert@123456', icon: '🎓', color: 'border-purple-500/40 hover:border-purple-500' },
-            { role: 'Peer Reviewer', name: 'Dr. Priya Nair', email: 'reviewer@curricraft.in', pass: 'Reviewer@123456', icon: '🔍', color: 'border-amber-500/40 hover:border-amber-500' },
-            { role: 'Public Viewer', name: 'Viewer Demo', email: 'viewer@curricraft.in', pass: 'Viewer@123456', icon: '👁️', color: 'border-emerald-500/40 hover:border-emerald-500' },
+            { role: 'AICTE Admin', name: 'Dr. Abhay Jere', email: 'admin@curricraft.in', pass: 'Admin@123456', icon: '👑', color: '139, 92, 246' }, // violet
+            { role: 'Bureau Head', name: 'Prof. Anil Sahasrabudhe', email: 'bureau@curricraft.in', pass: 'Bureau@123456', icon: '🏢', color: '59, 130, 246' }, // blue
+            { role: 'Curriculum Expert', name: 'Dr. Rajesh Sharma', email: 'expert@curricraft.in', pass: 'Expert@123456', icon: '🎓', color: '168, 85, 247' }, // purple
+            { role: 'Peer Reviewer', name: 'Dr. Priya Nair', email: 'reviewer@curricraft.in', pass: 'Reviewer@123456', icon: '🔍', color: '245, 158, 11' }, // amber
+            { role: 'Public Viewer', name: 'Viewer Demo', email: 'viewer@curricraft.in', pass: 'Viewer@123456', icon: '👁️', color: '16, 185, 129' }, // emerald
           ].map((acc) => (
-            <Card
+            <MagicBento
               key={acc.email}
               onClick={() => handleQuickLaunchRole(acc.email, acc.role, acc.pass)}
-              className={`border bg-slate-900/60 backdrop-blur-md cursor-pointer transition-all duration-300 card-hover ${acc.color}`}
+              className="h-full"
+              enableSpotlight={true}
+              spotlightRadius={300}
+              glowColor={acc.color}
             >
-              <CardContent className="p-4 space-y-2 text-center">
-                <span className="text-2xl block">{acc.icon}</span>
-                <h4 className="font-bold text-xs text-white">{acc.name}</h4>
-                <p className="text-[10px] text-slate-400 font-mono">{acc.role}</p>
-                <div className="pt-2 text-[10px] font-bold text-primary flex items-center justify-center gap-1">
+              <div className="p-5 space-y-3 text-center flex-1 flex flex-col justify-center">
+                <span className="text-3xl block">{acc.icon}</span>
+                <h4 className="font-bold text-sm text-white">{acc.name}</h4>
+                <p className="text-[11px] text-slate-400 font-mono">{acc.role}</p>
+                <div className="pt-3 text-[10px] font-bold text-primary flex items-center justify-center gap-1 group-hover:text-white transition-colors">
                   Enter Workspace <ChevronRight className="h-3 w-3" />
                 </div>
-              </CardContent>
-            </Card>
+              </div>
+            </MagicBento>
           ))}
         </div>
       </section>

@@ -3,6 +3,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Link } from 'react-router-dom';
+import MagicBento from '@/components/ui/MagicBento';
 import {
   BookOpen,
   Sparkles,
@@ -128,46 +129,61 @@ export const DashboardPage: React.FC = () => {
               <CardDescription>Launch interactive features tailored to your governance role</CardDescription>
             </CardHeader>
             <CardContent className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-              <Link to="/workspace">
-                <div className="p-5 rounded-2xl border bg-gradient-to-b from-card to-card/50 hover:border-primary/50 transition-all space-y-2 card-hover">
+              <Link to="/workspace" className="block">
+                <MagicBento 
+                  className="p-5 h-full space-y-2 card-hover !border-border/60"
+                  glowColor="249, 115, 22"
+                  spotlightRadius={250}
+                  enableTilt={true}
+                >
                   <h4 className="font-bold text-sm flex items-center gap-2 text-foreground">
                     <BookOpen className="h-4 w-4 text-primary" /> Workspace
                   </h4>
-                  <p className="text-xs text-muted-foreground leading-relaxed">
+                  <p className="text-xs text-muted-foreground leading-relaxed flex-grow">
                     TipTap rich editor with L-T-P-C credit calculation & CO mapping.
                   </p>
-                  <div className="pt-2 text-xs font-bold text-primary flex items-center gap-1">
+                  <div className="pt-2 text-xs font-bold text-primary flex items-center gap-1 mt-auto">
                     Open Workspace <ArrowRight className="h-3.5 w-3.5" />
                   </div>
-                </div>
+                </MagicBento>
               </Link>
 
-              <Link to="/ai-assistant">
-                <div className="p-5 rounded-2xl border bg-gradient-to-b from-card to-card/50 hover:border-indigo-500/50 transition-all space-y-2 card-hover">
+              <Link to="/ai-assistant" className="block">
+                <MagicBento 
+                  className="p-5 h-full space-y-2 card-hover !border-border/60"
+                  glowColor="99, 102, 241"
+                  spotlightRadius={250}
+                  enableTilt={true}
+                >
                   <h4 className="font-bold text-sm flex items-center gap-2 text-foreground">
                     <Sparkles className="h-4 w-4 text-indigo-400" /> AI Assistant
                   </h4>
-                  <p className="text-xs text-muted-foreground leading-relaxed">
+                  <p className="text-xs text-muted-foreground leading-relaxed flex-grow">
                     Generate model syllabi, course outcomes, & Bloom taxonomy.
                   </p>
-                  <div className="pt-2 text-xs font-bold text-indigo-400 flex items-center gap-1">
+                  <div className="pt-2 text-xs font-bold text-indigo-400 flex items-center gap-1 mt-auto">
                     Launch AI <ArrowRight className="h-3.5 w-3.5" />
                   </div>
-                </div>
+                </MagicBento>
               </Link>
 
-              <Link to="/nep-compliance">
-                <div className="p-5 rounded-2xl border bg-gradient-to-b from-card to-card/50 hover:border-emerald-500/50 transition-all space-y-2 card-hover">
+              <Link to="/nep-compliance" className="block">
+                <MagicBento 
+                  className="p-5 h-full space-y-2 card-hover !border-border/60"
+                  glowColor="16, 185, 129"
+                  spotlightRadius={250}
+                  enableTilt={true}
+                >
                   <h4 className="font-bold text-sm flex items-center gap-2 text-foreground">
                     <ShieldCheck className="h-4 w-4 text-emerald-500" /> NEP Audit
                   </h4>
-                  <p className="text-xs text-muted-foreground leading-relaxed">
+                  <p className="text-xs text-muted-foreground leading-relaxed flex-grow">
                     Automated credit cap, UHV, & Bloom higher-order skills audit.
                   </p>
-                  <div className="pt-2 text-xs font-bold text-emerald-500 flex items-center gap-1">
+                  <div className="pt-2 text-xs font-bold text-emerald-500 flex items-center gap-1 mt-auto">
                     Run Audit <ArrowRight className="h-3.5 w-3.5" />
                   </div>
-                </div>
+                </MagicBento>
               </Link>
             </CardContent>
           </Card>

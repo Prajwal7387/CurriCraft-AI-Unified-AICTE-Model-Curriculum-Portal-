@@ -2,36 +2,33 @@ import React from 'react';
 import { Outlet } from 'react-router-dom';
 import { ThemeToggle } from '@/components/shared/ThemeToggle';
 import { Logo } from '@/components/shared/Logo';
-import { motion } from 'framer-motion';
+import MagicRings from '@/components/ui/MagicRings';
 
 export const AuthLayout: React.FC = () => {
   return (
-    <div className="relative min-h-screen w-full flex items-center justify-center overflow-hidden bg-background text-foreground gradient-mesh selection:bg-indigo-500 selection:text-white">
-      {/* Background Animated Floating Orbs */}
-      <motion.div
-        className="orb w-96 h-96 bg-violet-600/30 dark:bg-violet-600/30 top-[-10%] left-[-10%]"
-        animate={{
-          x: [0, 40, 0],
-          y: [0, 30, 0],
-        }}
-        transition={{
-          duration: 10,
-          repeat: Infinity,
-          ease: 'easeInOut',
-        }}
-      />
-      <motion.div
-        className="orb w-96 h-96 bg-indigo-400/20 dark:bg-indigo-600/30 bottom-[-10%] right-[-10%]"
-        animate={{
-          x: [0, -30, 0],
-          y: [0, -40, 0],
-        }}
-        transition={{
-          duration: 12,
-          repeat: Infinity,
-          ease: 'easeInOut',
-        }}
-      />
+    <div className="relative min-h-screen w-full flex items-center justify-center overflow-hidden bg-background text-foreground selection:bg-orange-500 selection:text-white">
+      {/* Background Animated Rings */}
+      <div className="absolute inset-0 z-0 opacity-50 dark:opacity-80">
+        <MagicRings
+          color="#ea580c"
+          colorTwo="#eab308"
+          ringCount={8}
+          speed={0.8}
+          attenuation={12}
+          lineThickness={1.5}
+          baseRadius={0.15}
+          radiusStep={0.12}
+          scaleRate={0.05}
+          opacity={1}
+          blur={0}
+          noiseAmount={0.03}
+          rotation={0}
+          ringGap={1.3}
+          followMouse={true}
+          mouseInfluence={0.15}
+          hoverScale={1.05}
+        />
+      </div>
 
       {/* Header Bar */}
       <header className="absolute top-0 left-0 right-0 p-6 flex items-center justify-between z-20 max-w-7xl mx-auto w-full">
