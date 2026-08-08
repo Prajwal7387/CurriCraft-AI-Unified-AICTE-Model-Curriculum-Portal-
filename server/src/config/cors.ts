@@ -15,7 +15,7 @@ export const corsOptions: cors.CorsOptions = {
     ];
 
     // Allow requests with no origin (e.g., mobile apps, server-to-server)
-    if (!origin || allowedOrigins.includes(origin)) {
+    if (!origin || allowedOrigins.includes(origin) || config.nodeEnv === 'development') {
       callback(null, true);
     } else {
       callback(new Error(`Origin ${origin} not allowed by CORS`));

@@ -88,8 +88,8 @@ export default function MagicRings({
 }: any) {
   const mountRef = useRef<HTMLDivElement>(null);
   const propsRef = useRef<any>(null);
-  const mouseRef = useRef([0, 0]);
-  const smoothMouseRef = useRef([0, 0]);
+  const mouseRef = useRef<[number, number]>([0, 0]);
+  const smoothMouseRef = useRef<[number, number]>([0, 0]);
   const hoverAmountRef = useRef(0);
   const isHoveredRef = useRef(false);
   const burstRef = useRef(0);
@@ -245,8 +245,10 @@ export default function MagicRings({
 
     const io = new IntersectionObserver(
       ([entry]) => {
-        isVisible = entry.isIntersecting;
-        isVisible ? tryStart() : tryStop();
+        if (entry) {
+          isVisible = entry.isIntersecting;
+          isVisible ? tryStart() : tryStop();
+        }
       },
       { threshold: 0 }
     );
